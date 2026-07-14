@@ -1,13 +1,9 @@
-package api
+package data
 
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"math/rand"
 	"net/http"
-	"strings"
-	"time"
 
 	"work-system/pkg/db"
 )
@@ -43,8 +39,7 @@ type AppData struct {
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusOK)
@@ -52,27 +47,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	db.InitDB()
-
-	path := r.URL.Path
-
-	if strings.HasSuffix(path, "/data") || path == "/api" {
-		handleData(w, r)
-		return
-	}
-
-	if strings.HasSuffix(path, "/cards") {
-		handleCards(w, r)
-		return
-	}
-
-	http.NotFound(w, r)
-}
-
-func handleData(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	
 	if db.Pool == nil {
-		// Fallback mock data when DB connection fails
 		w.Write([]byte(`{
 			"board": { "id": "1", "title": "Work System Board (Offline)" },
 			"lists": [
@@ -156,63 +132,4 @@ func handleData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(data)
-}
-
-func handleCards(w http.ResponseWriter, r *http.Request) {
-	if db.Pool == nil {
-		// Offline mode - just return success without saving
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, `{"status":"offline_mock_success"}`)
-		return
-	}
-
-	ctx := context.Background()
-
-	if r.Method == "PUT" {
-		var c Card
-		if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
-			http.Error(w, "Invalid JSON", http.StatusBadRequest)
-			return
-		}
-		imgsJSON, _ := json.Marshal(c.Images)
-		_, err := db.Pool.Exec(ctx, 
-			`UPDATE cards SET list_id=$1, title=$2, description=$3, images=$4, date=$5 WHERE id=$6`,
-			c.ListID, c.Title, c.Description, imgsJSON, c.Date, c.ID,
-		)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, `{"status":"updated"}`)
-		return
-	}
-
-	if r.Method == "POST" {
-		var c Card
-		if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
-			http.Error(w, "Invalid JSON", http.StatusBadRequest)
-			return
-		}
-		if c.ID == "" {
-			c.ID = fmt.Sprintf("%d", int64(rand.Intn(1000000))+time.Now().Unix())
-		}
-		imgsJSON, _ := json.Marshal(c.Images)
-		if string(imgsJSON) == "null" {
-			imgsJSON = []byte("[]")
-		}
-		_, err := db.Pool.Exec(ctx, 
-			`INSERT INTO cards (id, list_id, title, description, images, date, position) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-			c.ID, c.ListID, c.Title, c.Description, imgsJSON, c.Date, 99,
-		)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, `{"status":"created", "id": "%s"}`, c.ID)
-		return
-	}
-
-	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 }
