@@ -5,7 +5,9 @@ export default function Dashboard({ lists, cards }) {
   const { t, lang } = useLanguage();
   
   const totalCards = cards.length;
-  const doneCards = cards.filter(c => c.list_id === '3');
+  const doneList = lists.find(l => l.titleKey === 'done' || l.title.toLowerCase() === 'done' || l.title === 'เสร็จสิ้น') || lists[lists.length - 1];
+  const doneListId = doneList ? doneList.id : '3';
+  const doneCards = cards.filter(c => c.list_id === doneListId);
   const completionRate = totalCards > 0 ? Math.round((doneCards.length / totalCards) * 100) : 0;
 
   // Pie chart calculation
