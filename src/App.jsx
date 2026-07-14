@@ -17,7 +17,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState('board');
   const [loading, setLoading] = useState(true);
-  const { t, toggleLanguage } = useLanguage();
+  const { t, lang, toggleLanguage } = useLanguage();
   const { cycleTheme, themeEmoji } = useTheme();
 
   useEffect(() => {

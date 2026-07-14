@@ -3,11 +3,11 @@ import { useTheme } from '../contexts/ThemeContext';
 import './Sakura.css';
 
 export default function SakuraLeaves() {
-  const { theme } = useTheme();
+  const { currentTheme } = useTheme();
   const [petals, setPetals] = useState([]);
 
   useEffect(() => {
-    if (theme !== 'sakura') {
+    if (currentTheme !== 'sakura') {
       setPetals([]);
       return;
     }
@@ -23,9 +23,9 @@ export default function SakuraLeaves() {
       rotation: Math.random() * 360,
     }));
     setPetals(newPetals);
-  }, [theme]);
+  }, [currentTheme]);
 
-  if (theme !== 'sakura') return null;
+  if (currentTheme !== 'sakura') return null;
 
   const handleScatter = (e) => {
     // When mouse hovers, push the petal away randomly
