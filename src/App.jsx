@@ -163,7 +163,6 @@ function App() {
             <button className="btn btn-ghost" onClick={cycleTheme}>
               {themeEmoji} {t('theme')}
             </button>
-            <button className="btn btn-primary">{t('share')}</button>
           </div>
         </div>
       </header>
