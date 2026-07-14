@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-export default function Card({ card, onUpdate }) {
+export default function Card({ card, onUpdate, onEdit, onDelete }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef(null);
   const { t } = useLanguage();
 
@@ -32,7 +33,13 @@ export default function Card({ card, onUpdate }) {
       }}
       style={{ cursor: 'grab' }}
     >
-      <h4 className="card-title">{card.title}</h4>
+      <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <h4 onDoubleClick={(e) => { e.stopPropagation(); onEdit(card); }} style={{ margin: 0 }}>{card.title}</h4>
+        <div style={{ display: 'flex' }}>
+          <button className="btn btn-ghost" style={{ padding: '2px', fontSize: '12px' }} onClick={(e) => { e.stopPropagation(); onEdit(card); }} title="Edit Task">✏️</button>
+          <button className="btn btn-ghost" style={{ padding: '2px', fontSize: '12px', color: '#f43f5e' }} onClick={(e) => { e.stopPropagation(); onDelete(card.id); }} title="Delete Task">🗑️</button>
+        </div>
+      </div>
       {card.description && <p className="card-desc">{card.description}</p>}
       
       {card.images && card.images.length > 0 && (

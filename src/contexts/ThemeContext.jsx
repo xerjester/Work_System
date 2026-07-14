@@ -15,7 +15,7 @@ const themeEmojis = {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [themeIndex, setThemeIndex] = useState(0);
+  const [themeIndex, setThemeIndex] = useState(4);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', themes[themeIndex]);

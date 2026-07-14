@@ -95,6 +95,38 @@ function App() {
     .catch(err => console.error("Error adding card:", err));
   };
 
+  const editList = (list) => {
+    const newTitle = prompt(lang === 'th' ? "ชื่อรายการใหม่:" : "New List Name:", list.titleKey ? t(list.titleKey) : list.title);
+    if (!newTitle) return;
+    const updatedList = { ...list, title: newTitle, titleKey: null };
+    setLists(lists.map(l => l.id === list.id ? updatedList : l));
+    fetch(`${API_BASE}/lists`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedList)
+    }).catch(err => console.error("Error editing list:", err));
+  };
+
+  const deleteList = (listId) => {
+    if (!window.confirm(lang === 'th' ? "คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้พร้อมงานทั้งหมดข้างใน?" : "Are you sure you want to delete this list and all its tasks?")) return;
+    setLists(lists.filter(l => l.id !== listId));
+    setCards(cards.filter(c => c.list_id !== listId));
+    fetch(`${API_BASE}/lists?id=${listId}`, { method: 'DELETE' }).catch(err => console.error(err));
+  };
+
+  const editCard = (card) => {
+    const newTitle = prompt(lang === 'th' ? "ชื่องานใหม่:" : "New Task Title:", card.title);
+    if (!newTitle) return;
+    const updatedCard = { ...card, title: newTitle };
+    updateCard(updatedCard);
+  };
+
+  const deleteCard = (cardId) => {
+    if (!window.confirm(lang === 'th' ? "คุณแน่ใจหรือไม่ว่าต้องการลบงานนี้?" : "Are you sure you want to delete this task?")) return;
+    setCards(cards.filter(c => c.id !== cardId));
+    fetch(`${API_BASE}/cards?id=${cardId}`, { method: 'DELETE' }).catch(err => console.error(err));
+  };
+
   if (loading) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white' }}><h2>Loading Workspace...</h2></div>;
   }
@@ -146,6 +178,10 @@ function App() {
               onUpdateCard={updateCard}
               onMoveCard={moveCard}
               onAddCard={addCard}
+              onEditList={editList}
+              onDeleteList={deleteList}
+              onEditCard={editCard}
+              onDeleteCard={deleteCard}
             />
           ))}
           

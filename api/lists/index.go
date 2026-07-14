@@ -61,5 +61,39 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.Method == "PUT" {
+		var l ListPayload
+		if err := json.NewDecoder(r.Body).Decode(&l); err != nil {
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			return
+		}
+		_, err := db.Pool.Exec(ctx, `UPDATE lists SET title=$1, title_key=NULL WHERE id=$2`, l.Title, l.ID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, `{"status":"updated"}`)
+		return
+	}
+
+	if r.Method == "DELETE" {
+		id := r.URL.Query().Get("id")
+		if id == "" {
+			http.Error(w, "Missing id parameter", http.StatusBadRequest)
+			return
+		}
+		// First delete associated cards
+		_, _ = db.Pool.Exec(ctx, `DELETE FROM cards WHERE list_id=$1`, id)
+		_, err := db.Pool.Exec(ctx, `DELETE FROM lists WHERE id=$1`, id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, `{"status":"deleted"}`)
+		return
+	}
+
 	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 }

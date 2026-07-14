@@ -87,5 +87,21 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.Method == "DELETE" {
+		id := r.URL.Query().Get("id")
+		if id == "" {
+			http.Error(w, "Missing id parameter", http.StatusBadRequest)
+			return
+		}
+		_, err := db.Pool.Exec(ctx, `DELETE FROM cards WHERE id=$1`, id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, `{"status":"deleted"}`)
+		return
+	}
+
 	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 }
