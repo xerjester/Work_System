@@ -3,8 +3,17 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Card({ card, onUpdate, onEdit, onDelete }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditingDesc, setIsEditingDesc] = useState(false);
+  const [descText, setDescText] = useState(card.description || '');
   const fileInputRef = useRef(null);
   const { t } = useLanguage();
+
+  const handleDescBlur = () => {
+    setIsEditingDesc(false);
+    if (descText !== (card.description || '')) {
+      onUpdate({ ...card, description: descText });
+    }
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -40,7 +49,26 @@ export default function Card({ card, onUpdate, onEdit, onDelete }) {
           <button className="btn btn-ghost" style={{ padding: '2px', fontSize: '12px', color: '#f43f5e' }} onClick={(e) => { e.stopPropagation(); onDelete(card.id); }} title="Delete Task">🗑️</button>
         </div>
       </div>
-      {card.description && <p className="card-desc">{card.description}</p>}
+      {isEditingDesc ? (
+        <textarea
+          autoFocus
+          value={descText}
+          onChange={(e) => setDescText(e.target.value)}
+          onBlur={handleDescBlur}
+          onKeyDown={(e) => { if (e.key === 'Escape') { setDescText(card.description || ''); setIsEditingDesc(false); } }}
+          className="card-desc-edit"
+          style={{ width: '100%', minHeight: '60px', background: 'rgba(255,255,255,0.1)', color: 'inherit', border: '1px solid var(--glass-border)', borderRadius: '4px', padding: '4px', resize: 'vertical', marginTop: '0.5rem', fontFamily: 'inherit' }}
+          placeholder="Enter description..."
+        />
+      ) : (
+        <p 
+          className="card-desc" 
+          onClick={(e) => { e.stopPropagation(); setIsEditingDesc(true); }}
+          style={{ cursor: 'text', minHeight: '20px', padding: card.description ? '0' : '4px', border: card.description ? 'none' : '1px dashed var(--glass-border)', opacity: card.description ? 1 : 0.6, borderRadius: '4px', marginTop: '0.5rem' }}
+        >
+          {card.description || "+ Add description..."}
+        </p>
+      )}
       
       {card.images && card.images.length > 0 && (
         <div className="card-images" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
