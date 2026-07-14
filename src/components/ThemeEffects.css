@@ -1,0 +1,95 @@
+.theme-effect-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; 
+  z-index: -1;
+  overflow: hidden;
+}
+
+.particle-interact {
+  pointer-events: none;
+}
+
+.particle-anim {
+  position: absolute;
+  pointer-events: none;
+  transform-origin: center center;
+  user-select: none;
+}
+
+/* Fall Animation (Sakura, Cyberpunk) */
+.down-anim {
+  top: -10%;
+  animation: fall linear infinite, sway ease-in-out infinite alternate;
+}
+
+/* Float Up Animation (Nature) */
+.up-anim {
+  top: 110%;
+  animation: floatUp linear infinite, sway ease-in-out infinite alternate;
+}
+
+/* Drift Right Animation (Light) */
+.right-anim {
+  left: -10%;
+  animation: driftRight linear infinite;
+  opacity: 0.3 !important;
+}
+
+/* Static Animation (Dark) */
+.static-anim {
+  animation: twinkle ease-in-out infinite alternate;
+}
+
+/* Cyberpunk specific styling */
+.cyberpunk-effect .particle-anim {
+  color: #0f0;
+  font-family: monospace;
+  font-weight: bold;
+  text-shadow: 0 0 5px #0f0;
+  animation: fall linear infinite; /* No sway for matrix */
+}
+
+/* Nature firefly */
+.firefly {
+  width: 6px;
+  height: 6px;
+  background-color: #e0f85b;
+  border-radius: 50%;
+  box-shadow: 0 0 10px 2px #e0f85b, 0 0 20px 5px rgba(224, 248, 91, 0.5);
+}
+
+/* Dark stars */
+.dark-effect .particle-anim {
+  color: #fff;
+  transition: text-shadow 0.2s, opacity 0.2s;
+}
+
+/* Keyframes */
+@keyframes fall {
+  0% { top: -10%; }
+  100% { top: 110%; }
+}
+
+@keyframes floatUp {
+  0% { top: 110%; }
+  100% { top: -10%; }
+}
+
+@keyframes driftRight {
+  0% { left: -10vw; }
+  100% { left: 110vw; }
+}
+
+@keyframes sway {
+  0% { transform: scale(var(--scale)) rotate(var(--rotation)) translateX(-30px); }
+  100% { transform: scale(var(--scale)) rotate(calc(var(--rotation) + 90deg)) translateX(30px); }
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.2; transform: scale(var(--scale)); }
+  100% { opacity: 1; transform: scale(calc(var(--scale) * 1.2)); }
+}
