@@ -6,42 +6,63 @@ import Dashboard from './components/Dashboard';
 import { useLanguage } from './contexts/LanguageContext';
 import { useTheme } from './contexts/ThemeContext';
 
-const INITIAL_DATA = {
-  board: { title: 'Product Launch' },
-  lists: [
-    { id: '1', titleKey: 'todo', position: 1 },
-    { id: '2', titleKey: 'inProgress', position: 2 },
-    { id: '3', titleKey: 'done', position: 3 }
-  ],
-  cards: [
-    { id: '1', list_id: '1', title: 'Design landing page', description: 'Create mockups for the new landing page using Figma.', images: [], date: '22/2/2026' },
-    { id: '2', list_id: '1', title: 'Write copy', description: 'Draft the main headlines and benefits.', images: [], date: '22/2/2026' },
-    { id: '3', list_id: '2', title: 'Setup database', description: 'Initialize Supabase and create tables.', images: [], date: '22/2/2026' },
-    { id: '4', list_id: '3', title: 'Project planning', description: 'Define MVP scope and tasks.', images: [], date: '22/2/2026' }
-  ]
-};
+const API_BASE = import.meta.env.DEV ? 'http://localhost:8080/api' : '/api';
 
 function App() {
-  const [board] = useState(INITIAL_DATA.board);
-  const [lists] = useState(INITIAL_DATA.lists);
-  const [cards, setCards] = useState(INITIAL_DATA.cards);
+  const [board, setBoard] = useState(null);
+  const [lists, setLists] = useState([]);
+  const [cards, setCards] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState('board');
-  const { t, lang, toggleLanguage } = useLanguage();
+  const [loading, setLoading] = useState(true);
+  const { t, toggleLanguage } = useLanguage();
   const { cycleTheme, themeEmoji } = useTheme();
+
+  useEffect(() => {
+    fetch(`${API_BASE}/data`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.board) {
+          setBoard(data.board);
+          setLists(data.lists || []);
+          setCards(data.cards || []);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error fetching data:", err);
+        setLoading(false);
+      });
+  }, []);
 
   const updateCard = (updatedCard) => {
     setCards(cards.map(c => c.id === updatedCard.id ? updatedCard : c));
+    
+    fetch(`${API_BASE}/cards`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedCard)
+    }).catch(err => console.error("Error updating card:", err));
   };
 
   const moveCard = (cardId, targetListId) => {
-    setCards(prevCards => prevCards.map(c => {
-      if (c.id === cardId && c.list_id !== targetListId) {
-        return { ...c, list_id: targetListId };
-      }
-      return c;
-    }));
+    const card = cards.find(c => c.id === cardId);
+    if (!card || card.list_id === targetListId) return;
+
+    const updatedCard = { ...card, list_id: targetListId };
+    
+    setCards(prevCards => prevCards.map(c => c.id === cardId ? updatedCard : c));
+
+    fetch(`${API_BASE}/cards`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedCard)
+    }).catch(err => console.error("Error moving card:", err));
   };
+
+  if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white' }}><h2>Loading Workspace...</h2></div>;
+  }
 
   return (
     <div className="app-container">
