@@ -2,7 +2,7 @@ import React from 'react';
 import Card from './Card';
 import { useLanguage } from '../contexts/LanguageContext';
 
-export default function List({ list, cards, onUpdateCard, onMoveCard, onAddCard, onEditList, onDeleteList, onEditCard, onDeleteCard }) {
+export default function List({ list, cards, lists, onUpdateCard, onMoveCard, onAddCard, onEditList, onDeleteList, onEditCard, onDeleteCard }) {
   const { t } = useLanguage();
   
   return (
@@ -30,12 +30,11 @@ export default function List({ list, cards, onUpdateCard, onMoveCard, onAddCard,
         </h3>
         <div style={{ display: 'flex', gap: '4px' }}>
           <button className="btn btn-ghost" style={{ padding: '0.25rem' }} onClick={() => onEditList(list)} title="Edit List">✏️</button>
-          <button className="btn btn-ghost" style={{ padding: '0.25rem', color: '#f43f5e' }} onClick={() => onDeleteList(list.id)} title="Delete List">🗑️</button>
         </div>
       </div>
       <div className="list-cards" style={{ minHeight: '50px' }}>
         {cards.map(card => (
-          <Card key={card.id} card={card} onUpdate={onUpdateCard} onEdit={onEditCard} onDelete={onDeleteCard} />
+          <Card key={card.id} card={card} onUpdate={onUpdateCard} onEdit={onEditCard} onDelete={onDeleteCard} onMoveCard={onMoveCard} lists={lists} currentListId={list.id} />
         ))}
       </div>
       <button className="btn btn-ghost add-card-btn" onClick={() => onAddCard(list.id)}>

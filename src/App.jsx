@@ -182,12 +182,10 @@ function App() {
               onDeleteList={deleteList}
               onEditCard={editCard}
               onDeleteCard={deleteCard}
+              lists={lists}
             />
           ))}
           
-          <button className="btn btn-ghost add-list-btn glass" onClick={addList}>
-            {t('addList')}
-          </button>
         </main>
       ) : (
         <Dashboard lists={lists} cards={cards} />

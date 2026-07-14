@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-export default function Card({ card, onUpdate, onEdit, onDelete }) {
+export default function Card({ card, onUpdate, onEdit, onDelete, onMoveCard, lists, currentListId }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [descText, setDescText] = useState(card.description || '');
@@ -44,7 +44,29 @@ export default function Card({ card, onUpdate, onEdit, onDelete }) {
     >
       <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <h4 onDoubleClick={(e) => { e.stopPropagation(); onEdit(card); }} style={{ margin: 0 }}>{card.title}</h4>
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          {lists && lists.length > 0 && (
+            <select
+              className="btn btn-ghost"
+              style={{ padding: '0 2px', fontSize: '11px', background: 'transparent', color: 'inherit', border: '1px solid var(--glass-border)', borderRadius: '4px', cursor: 'pointer', maxWidth: '80px', textOverflow: 'ellipsis' }}
+              value={currentListId}
+              onChange={(e) => {
+                e.stopPropagation();
+                if (onMoveCard && e.target.value !== currentListId) {
+                  onMoveCard(card.id, e.target.value);
+                }
+              }}
+              onClick={(e) => e.stopPropagation()}
+              title={t('moveCard') || "Move Card"}
+            >
+              <option value="" disabled>{t('moveCard') || "Move to..."}</option>
+              {lists.map(l => (
+                <option key={l.id} value={l.id} style={{ color: 'black' }}>
+                  {l.titleKey ? t(l.titleKey) : l.title}
+                </option>
+              ))}
+            </select>
+          )}
           <button className="btn btn-ghost" style={{ padding: '2px', fontSize: '12px' }} onClick={(e) => { e.stopPropagation(); onEdit(card); }} title="Edit Task">✏️</button>
           <button className="btn btn-ghost" style={{ padding: '2px', fontSize: '12px', color: '#f43f5e' }} onClick={(e) => { e.stopPropagation(); onDelete(card.id); }} title="Delete Task">🗑️</button>
         </div>
