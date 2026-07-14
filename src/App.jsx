@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './index.css';
 import List from './components/List';
 import HowToUseModal from './components/HowToUseModal';
 import Dashboard from './components/Dashboard';
 import { useLanguage } from './contexts/LanguageContext';
 import { useTheme } from './contexts/ThemeContext';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const API_BASE = import.meta.env.DEV ? 'http://localhost:8080/api' : '/api';
 
@@ -122,6 +123,7 @@ function App() {
       )}
 
       <HowToUseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SpeedInsights />
     </div>
   );
 }
