@@ -3,6 +3,7 @@ import './index.css';
 import List from './components/List';
 import HowToUseModal from './components/HowToUseModal';
 import Dashboard from './components/Dashboard';
+import SakuraLeaves from './components/SakuraLeaves';
 import { useLanguage } from './contexts/LanguageContext';
 import { useTheme } from './contexts/ThemeContext';
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -193,6 +194,7 @@ function App() {
       )}
 
       <HowToUseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SakuraLeaves />
       <SpeedInsights />
     </div>
   );
