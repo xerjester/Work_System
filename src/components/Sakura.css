@@ -4,22 +4,19 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  pointer-events: none; /* Let clicks pass through to underlying elements */
-  z-index: 100; /* Float above most things */
+  pointer-events: none; 
+  z-index: -1; /* Put behind everything */
   overflow: hidden;
 }
 
 .sakura-petal {
   position: absolute;
   top: -10%;
-  width: 15px;
-  height: 25px;
-  background: linear-gradient(135deg, #ffb7b2 0%, #ff9a9e 100%);
-  border-radius: 15px 0px 15px 15px; /* Petal shape */
-  pointer-events: auto; /* Re-enable pointer events for hover scattering */
+  font-size: 24px;
+  pointer-events: none; 
   animation: fall linear infinite, sway ease-in-out infinite alternate;
-  box-shadow: 0 0 10px rgba(255, 183, 178, 0.5);
-  transform-origin: center bottom;
+  transform-origin: center center;
+  user-select: none;
 }
 
 @keyframes fall {
@@ -33,9 +30,9 @@
 
 @keyframes sway {
   0% {
-    transform: scale(var(--scale)) rotate(var(--rotation)) translateX(-20px);
+    transform: scale(var(--scale)) rotate(var(--rotation)) translateX(-30px);
   }
   100% {
-    transform: scale(var(--scale)) rotate(calc(var(--rotation) + 45deg)) translateX(20px);
+    transform: scale(var(--scale)) rotate(calc(var(--rotation) + 90deg)) translateX(30px);
   }
 }
