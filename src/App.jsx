@@ -61,6 +61,40 @@ function App() {
     }).catch(err => console.error("Error moving card:", err));
   };
 
+  const addList = () => {
+    const title = prompt("List Name / ชื่อรายการ:");
+    if (!title) return;
+    
+    const newList = { title, board_id: board?.id || '1' };
+    fetch(`${API_BASE}/lists`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newList)
+    })
+    .then(res => res.json())
+    .then(data => {
+      setLists([...lists, { ...newList, id: data.id || Date.now().toString(), position: 99 }]);
+    })
+    .catch(err => console.error("Error adding list:", err));
+  };
+
+  const addCard = (listId) => {
+    const title = prompt("Task Title / ชื่องาน:");
+    if (!title) return;
+    
+    const newCard = { list_id: listId, title, description: '', images: [], date: new Date().toLocaleDateString(lang === 'th' ? 'th-TH' : 'en-US') };
+    fetch(`${API_BASE}/cards`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newCard)
+    })
+    .then(res => res.json())
+    .then(data => {
+      setCards([...cards, { ...newCard, id: data.id || Date.now().toString(), position: 99 }]);
+    })
+    .catch(err => console.error("Error adding card:", err));
+  };
+
   if (loading) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white' }}><h2>Loading Workspace...</h2></div>;
   }
@@ -111,10 +145,11 @@ function App() {
               cards={cards.filter(c => c.list_id === list.id)} 
               onUpdateCard={updateCard}
               onMoveCard={moveCard}
+              onAddCard={addCard}
             />
           ))}
           
-          <button className="btn btn-ghost add-list-btn glass">
+          <button className="btn btn-ghost add-list-btn glass" onClick={addList}>
             {t('addList')}
           </button>
         </main>

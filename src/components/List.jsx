@@ -2,7 +2,7 @@ import React from 'react';
 import Card from './Card';
 import { useLanguage } from '../contexts/LanguageContext';
 
-export default function List({ list, cards, onUpdateCard, onMoveCard }) {
+export default function List({ list, cards, onUpdateCard, onMoveCard, onAddCard }) {
   const { t } = useLanguage();
   
   return (
@@ -33,7 +33,7 @@ export default function List({ list, cards, onUpdateCard, onMoveCard }) {
           <Card key={card.id} card={card} onUpdate={onUpdateCard} />
         ))}
       </div>
-      <button className="btn btn-ghost add-card-btn">
+      <button className="btn btn-ghost add-card-btn" onClick={() => onAddCard(list.id)}>
         {t('addCard')}
       </button>
     </div>
