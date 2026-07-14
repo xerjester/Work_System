@@ -14,6 +14,7 @@ export default function HowToUseModal({ isOpen, onClose }) {
           <li>{t('howToUseDesc1')}</li>
           <li>{t('howToUseDesc2')}</li>
           <li>{t('howToUseDesc3')}</li>
+          <li>{t('howToUseDesc4')}</li>
         </ul>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <button className="btn btn-primary" onClick={onClose}>{t('close')}</button>
