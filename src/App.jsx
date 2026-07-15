@@ -14,7 +14,9 @@ function App() {
   const [board, setBoard] = useState(null);
   const [lists, setLists] = useState([]);
   const [cards, setCards] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(() => {
+    return !localStorage.getItem('worksystem_welcomed');
+  });
   const [currentView, setCurrentView] = useState('board');
   const [loading, setLoading] = useState(true);
   const { t, lang, toggleLanguage } = useLanguage();
