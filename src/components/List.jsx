@@ -25,11 +25,10 @@ export default function List({ list, cards, lists, onUpdateCard, onMoveCard, onA
       }}
     >
       <div className="list-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 className="list-title" onDoubleClick={() => onEditList(list)} style={{ margin: 0, cursor: 'text' }}>
+        <h3 className="list-title" style={{ margin: 0 }}>
           {list.titleKey ? t(list.titleKey) : list.title}
         </h3>
         <div style={{ display: 'flex', gap: '4px' }}>
-          <button className="btn btn-ghost" style={{ padding: '0.25rem' }} onClick={() => onEditList(list)} title="Edit List">✏️</button>
         </div>
       </div>
       <div className="list-cards" style={{ minHeight: '50px' }}>

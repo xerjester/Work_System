@@ -132,6 +132,15 @@ function App() {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white' }}><h2>Loading Workspace...</h2></div>;
   }
 
+  if (!board) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white', flexDirection: 'column' }}>
+        <h2>❌ Error Loading Data</h2>
+        <p>Could not load the workspace. Please check your database connection.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
       <header className="app-header">
