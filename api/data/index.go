@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"work-system/pkg/db"
 )
@@ -63,18 +64,25 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	var board Board
 	err := db.Pool.QueryRow(ctx, "SELECT id, title FROM boards LIMIT 1").Scan(&board.ID, &board.Title)
 	if err != nil {
-		// If no board is found or another error occurs, return a default board to prevent a 500 error crash
-		board = Board{
-			ID:    "1",
-			Title: "Work System Board (Offline/Error Fallback)",
-		}
-		// Try to insert the default board into the database just in case it's missing
-		db.Pool.Exec(ctx, "INSERT INTO boards (id, title) VALUES ('1', 'Work System Board') ON CONFLICT DO NOTHING")
+		// If DB connection times out or board is missing, return offline fallback data immediately
+		w.Write([]byte(`{
+			"board": { "id": "1", "title": "Work System Board (Offline/Error Fallback)" },
+			"lists": [
+				{ "id": "1", "board_id": "1", "title": "To Do", "titleKey": "todo", "position": 1 },
+				{ "id": "2", "board_id": "1", "title": "In Progress", "titleKey": "inProgress", "position": 2 },
+				{ "id": "3", "board_id": "1", "title": "Done", "titleKey": "done", "position": 3 }
+			],
+			"cards": [
+				{ "id": "1", "list_id": "1", "title": "Design landing page", "description": "Offline Mode mock task", "images": [], "date": "22/2/2026", "position": 1 }
+			]
+		}`))
+		return
 	}
 
 	rows, err := db.Pool.Query(ctx, "SELECT id, board_id, title, title_key, position FROM lists ORDER BY position")
