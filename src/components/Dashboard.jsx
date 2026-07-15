@@ -1,14 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+
+const API_BASE = import.meta.env.DEV ? 'http://localhost:8080/api' : '/api';
 
 export default function Dashboard({ lists, cards }) {
   const { t, lang } = useLanguage();
+  const [cardImages, setCardImages] = useState({});
   
   const totalCards = cards.length;
   const doneList = lists.find(l => l.titleKey === 'done' || l.title.toLowerCase() === 'done' || l.title === 'เสร็จสิ้น') || lists[lists.length - 1];
   const doneListId = doneList ? doneList.id : '3';
   const doneCards = cards.filter(c => c.list_id === doneListId);
   const completionRate = totalCards > 0 ? Math.round((doneCards.length / totalCards) * 100) : 0;
+
+  // Fetch images for done cards (for PDF report)
+  useEffect(() => {
+    doneCards.forEach(card => {
+      if (!cardImages[card.id]) {
+        fetch(`${API_BASE}/images?id=${card.id}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.images && data.images.length > 0) {
+              setCardImages(prev => ({ ...prev, [card.id]: data.images }));
+            }
+          })
+          .catch(() => {});
+      }
+    });
+  }, [doneCards.length]);
 
   // Pie chart calculation
   let currentAngle = 0;
@@ -135,6 +154,7 @@ export default function Dashboard({ lists, cards }) {
             {doneCards.map(card => {
               const list = lists.find(l => l.id === card.list_id);
               const listName = list ? (list.titleKey ? t(list.titleKey) : list.title) : '';
+              const images = cardImages[card.id] || card.images || [];
               return (
                 <tr key={card.id}>
                   <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>
@@ -145,9 +165,9 @@ export default function Dashboard({ lists, cards }) {
                     <span style={{ fontSize: '0.85rem' }}>{card.description}</span>
                   </td>
                   <td style={{ border: '1px solid black', padding: '0.5rem', verticalAlign: 'top' }}>
-                    {card.images && card.images.length > 0 ? (
+                    {images.length > 0 ? (
                       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        {card.images.map((img, i) => (
+                        {images.map((img, i) => (
                           <img key={i} src={img} alt="attachment" style={{ height: '100px', objectFit: 'contain' }} />
                         ))}
                       </div>
