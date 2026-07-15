@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -23,14 +24,15 @@ func InitDB() {
 		return
 	}
 
-	// Disable prepared statements for Transaction Pooler compatibility
-	config.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeExec
-	config.ConnConfig.StatementCacheCapacity = 0
-	config.ConnConfig.DescriptionCacheCapacity = 0
+	// Use simple protocol to avoid prepared statement issues with Transaction Pooler
+	config.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	Pool, err = pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		log.Printf("Unable to create connection pool: %v\n", err)
+		Pool = nil
 	}
 }

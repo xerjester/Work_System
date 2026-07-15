@@ -3,6 +3,8 @@ package data
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -41,6 +43,22 @@ type AppData struct {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
+
+	// Catch any panic to prevent Vercel 500 crash
+	defer func() {
+		if rec := recover(); rec != nil {
+			log.Printf("PANIC in Handler: %v", rec)
+			w.Write([]byte(fmt.Sprintf(`{
+				"board": { "id": "1", "title": "Work System Board (Error: %v)" },
+				"lists": [
+					{ "id": "1", "board_id": "1", "title": "To Do", "titleKey": "todo", "position": 1 },
+					{ "id": "2", "board_id": "1", "title": "In Progress", "titleKey": "inProgress", "position": 2 },
+					{ "id": "3", "board_id": "1", "title": "Done", "titleKey": "done", "position": 3 }
+				],
+				"cards": []
+			}`, rec)))
+		}
+	}()
 
 	if r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusOK)
