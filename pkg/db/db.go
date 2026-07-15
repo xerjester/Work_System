@@ -14,7 +14,7 @@ func InitDB() {
 		return
 	}
 
-	connString := "postgresql://postgres.asdaptdcvwmvzjnefiah:Jobchan273159@aws-0-ap-southeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true&statement_cache_capacity=0&default_query_exec_mode=exec"
+	connString := "postgresql://postgres.asdaptdcvwmvzjnefiah:Jobchan273159@aws-0-ap-southeast-2.pooler.supabase.com:6543/postgres"
 
 	ctx := context.Background()
 	var err error
