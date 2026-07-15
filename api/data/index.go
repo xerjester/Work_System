@@ -124,7 +124,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		lists = append(lists, l)
 	}
 
-	cRows, err := db.Pool.Query(ctx, "SELECT id, list_id, title, description, images, date, position FROM cards ORDER BY position")
+	cRows, err := db.Pool.Query(ctx, "SELECT id, list_id, title, description, date, position FROM cards ORDER BY position")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -136,8 +136,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		var c Card
 		var desc *string
 		var date *string
-		var imgsJSON []byte
-		if err := cRows.Scan(&c.ID, &c.ListID, &c.Title, &desc, &imgsJSON, &date, &c.Position); err != nil {
+		if err := cRows.Scan(&c.ID, &c.ListID, &c.Title, &desc, &date, &c.Position); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -147,12 +146,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		if date != nil {
 			c.Date = *date
 		}
-		if imgsJSON != nil && len(imgsJSON) > 0 && string(imgsJSON) != "null" {
-			json.Unmarshal(imgsJSON, &c.Images)
-		}
-		if c.Images == nil {
-			c.Images = make([]string, 0)
-		}
+		c.Images = make([]string, 0)
 		cards = append(cards, c)
 	}
 

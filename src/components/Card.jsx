@@ -1,12 +1,31 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+
+const API_BASE = import.meta.env.DEV ? 'http://localhost:8080/api' : '/api';
 
 export default function Card({ card, onUpdate, onEdit, onDelete, onMoveCard, lists, currentListId }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [descText, setDescText] = useState(card.description || '');
+  const [loadedImages, setLoadedImages] = useState(card.images || []);
   const fileInputRef = useRef(null);
   const { t } = useLanguage();
+
+  // Lazy-load images from separate API to avoid payload size limit
+  useEffect(() => {
+    if (!card.images || card.images.length === 0) {
+      fetch(`${API_BASE}/images?id=${card.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.images && data.images.length > 0) {
+            setLoadedImages(data.images);
+          }
+        })
+        .catch(() => {});
+    } else {
+      setLoadedImages(card.images);
+    }
+  }, [card.id, card.images]);
 
   const handleDescBlur = () => {
     setIsEditingDesc(false);
@@ -92,9 +111,9 @@ export default function Card({ card, onUpdate, onEdit, onDelete, onMoveCard, lis
         </p>
       )}
       
-      {card.images && card.images.length > 0 && (
+      {loadedImages && loadedImages.length > 0 && (
         <div className="card-images" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
-          {card.images.map((img, i) => (
+          {loadedImages.map((img, i) => (
             <img key={i} src={img} alt="attachment" style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--glass-border)' }} />
           ))}
         </div>
