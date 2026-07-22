@@ -61,12 +61,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		imgsJSON, _ := json.Marshal(c.Images)
-		if string(imgsJSON) == "null" {
-			imgsJSON = []byte("[]")
+		imgsStr := string(imgsJSON)
+		if imgsStr == "null" {
+			imgsStr = "[]"
 		}
 		_, err := db.Pool.Exec(ctx, 
 			`UPDATE cards SET list_id=$1, title=$2, description=$3, images=$4, date=$5 WHERE id=$6`,
-			c.ListID, c.Title, c.Description, imgsJSON, c.Date, c.ID,
+			c.ListID, c.Title, c.Description, imgsStr, c.Date, c.ID,
 		)
 		if err != nil {
 			log.Printf("Error updating card %s: %v", c.ID, err)
@@ -89,12 +90,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			c.ID = fmt.Sprintf("%d", rand.Intn(900000)+100000)
 		}
 		imgsJSON, _ := json.Marshal(c.Images)
-		if string(imgsJSON) == "null" {
-			imgsJSON = []byte("[]")
+		imgsStr := string(imgsJSON)
+		if imgsStr == "null" {
+			imgsStr = "[]"
 		}
 		_, err := db.Pool.Exec(ctx, 
 			`INSERT INTO cards (id, list_id, title, description, images, date, position) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-			c.ID, c.ListID, c.Title, c.Description, imgsJSON, c.Date, 99,
+			c.ID, c.ListID, c.Title, c.Description, imgsStr, c.Date, 99,
 		)
 		if err != nil {
 			log.Printf("Error creating card: %v", err)
